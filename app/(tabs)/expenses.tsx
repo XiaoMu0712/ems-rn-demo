@@ -1,22 +1,29 @@
-import React, { useState, useLayoutEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { 
-  Card, 
-  Title, 
-  Paragraph, 
-  Button, 
-  Chip, 
+import { MaterialIcons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import React, { useLayoutEffect, useState } from "react";
+import {
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Button,
+  Card,
+  Chip,
   Divider,
-  Text,
-  Portal,
+  IconButton,
   Modal,
+  Paragraph,
+  Text,
   TextInput,
-  SegmentedButtons,
-  IconButton
-} from 'react-native-paper';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+  Title,
+} from "react-native-paper";
+
 
 interface Expense {
   id: string;
@@ -24,34 +31,34 @@ interface Expense {
   category: string;
   description: string;
   date: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
 }
 
 const mockExpenses: Expense[] = [
   {
-    id: '1',
-    amount: 125.50,
-    category: 'Travel',
-    description: 'Taxi to airport',
-    date: '2024-01-15',
-    status: 'approved'
+    id: "1",
+    amount: 125.5,
+    category: "Travel",
+    description: "Taxi to airport",
+    date: "2024-01-15",
+    status: "approved",
   },
   {
-    id: '2',
-    amount: 45.00,
-    category: 'Meals',
-    description: 'Business lunch with client',
-    date: '2024-01-14',
-    status: 'pending'
+    id: "2",
+    amount: 45.0,
+    category: "Meals",
+    description: "Business lunch with client",
+    date: "2024-01-14",
+    status: "pending",
   },
   {
-    id: '3',
+    id: "3",
     amount: 89.99,
-    category: 'Office Supplies',
-    description: 'Printer cartridges',
-    date: '2024-01-12',
-    status: 'rejected'
-  }
+    category: "Office Supplies",
+    description: "Printer cartridges",
+    date: "2024-01-12",
+    status: "rejected",
+  },
 ];
 
 export default function ExpensesScreen() {
@@ -60,11 +67,50 @@ export default function ExpensesScreen() {
   const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
   const [modalVisible, setModalVisible] = useState(false);
   const [newReport, setNewReport] = useState({
-    name: '',
-    date: new Date().toISOString().split('T')[0],
-    businessPurpose: '',
-    comment: '',
+    name: "",
+    date: new Date().toISOString().split("T")[0],
+    businessPurpose: "",
+    comment: "",
   });
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const showDatePicker = () => {
+    // setDatePickerOpen(true);
+  };
+
+  const onChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || selectedDate;
+    // 在 iOS 上，需要手动关闭
+    if (Platform.OS === "ios") {
+      setDatePickerOpen(false);
+    } else {
+      setDatePickerOpen(false); // 在安卓上，选择或取消后也需要隐藏
+    }
+    if (currentDate) {
+      setSelectedDate(currentDate);
+      setNewReport({
+        ...newReport,
+        date: currentDate.toISOString().split("T")[0],
+      });
+    }
+  };
+
+  const renderDatePicker = () => {
+    // 只有当 datePickerOpen 为 true 时才渲染
+    if (!datePickerOpen) return null;
+
+    return (
+      <DateTimePicker
+        testID="dateTimePicker"
+        value={selectedDate}
+        mode="date"
+        is24Hour={true}
+        display={Platform.OS === "ios" ? "spinner" : "default"} // iOS上推荐用spinner或inline
+        onChange={onChange}
+      />
+    );
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -74,64 +120,75 @@ export default function ExpensesScreen() {
           iconColor="#1976D2"
           size={24}
           onPress={() => setModalVisible(true)}
-          style={{ backgroundColor: '#E3F2FD', marginRight: 8 }}
+          style={{ backgroundColor: "#E3F2FD", marginRight: 8 }}
         />
       ),
     });
   }, [navigation]);
 
-
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return '#4CAF50';
-      case 'pending': return '#FF9800';
-      case 'rejected': return '#F44336';
-      default: return '#90A4AE';
+      case "approved":
+        return "#4CAF50";
+      case "pending":
+        return "#FF9800";
+      case "rejected":
+        return "#F44336";
+      default:
+        return "#90A4AE";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved': return 'check-circle';
-      case 'pending': return 'schedule';
-      case 'rejected': return 'cancel';
-      default: return 'help';
+      case "approved":
+        return "check-circle";
+      case "pending":
+        return "schedule";
+      case "rejected":
+        return "cancel";
+      default:
+        return "help";
     }
   };
 
   const handleAddReport = () => {
     if (!newReport.name || !newReport.businessPurpose) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      Alert.alert("Error", "Please fill in all required fields");
       return;
     }
 
     // Close modal and navigate to report detail page
     setModalVisible(false);
-    
+
     // Navigate to report detail page with report data
     router.push({
-      pathname: '/report-detail',
+      pathname: "/report-detail",
       params: {
         name: newReport.name,
         date: newReport.date,
         businessPurpose: newReport.businessPurpose,
-        comment: newReport.comment
-      }
+        comment: newReport.comment,
+      },
     });
-    
+
     // Reset form
+    const today = new Date();
     setNewReport({
-      name: '',
-      date: new Date().toISOString().split('T')[0],
-      businessPurpose: '',
-      comment: '',
+      name: "",
+      date: today.toISOString().split("T")[0],
+      businessPurpose: "",
+      comment: "",
     });
+    setSelectedDate(today);
   };
 
-  const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalAmount = expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
   const pendingAmount = expenses
-    .filter(expense => expense.status === 'pending')
+    .filter((expense) => expense.status === "pending")
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   return (
@@ -139,16 +196,20 @@ export default function ExpensesScreen() {
       <ScrollView style={styles.scrollView}>
         {/* Summary Cards */}
         <View style={styles.summaryContainer}>
-          <Card style={[styles.summaryCard, { backgroundColor: '#E3F2FD' }]}>
+          <Card style={[styles.summaryCard, { backgroundColor: "#E3F2FD" }]}>
             <Card.Content>
-              <Title style={styles.summaryAmount}>${totalAmount.toFixed(2)}</Title>
+              <Title style={styles.summaryAmount}>
+                ${totalAmount.toFixed(2)}
+              </Title>
               <Paragraph>Total Expenses</Paragraph>
             </Card.Content>
           </Card>
-          
-          <Card style={[styles.summaryCard, { backgroundColor: '#FFF3E0' }]}>
+
+          <Card style={[styles.summaryCard, { backgroundColor: "#FFF3E0" }]}>
             <Card.Content>
-              <Title style={styles.summaryAmount}>${pendingAmount.toFixed(2)}</Title>
+              <Title style={styles.summaryAmount}>
+                ${pendingAmount.toFixed(2)}
+              </Title>
               <Paragraph>Pending Approval</Paragraph>
             </Card.Content>
           </Card>
@@ -158,48 +219,57 @@ export default function ExpensesScreen() {
 
         {/* Expenses List */}
         <Title style={styles.sectionTitle}>Recent Expenses</Title>
-        
+
         {expenses.map((expense) => (
-          <Card 
-            key={expense.id} 
+          <Card
+            key={expense.id}
             style={styles.expenseCard}
             onPress={() => {
               router.push({
-                pathname: '/report-detail',
+                pathname: "/report-detail",
                 params: {
                   expenseId: expense.id,
                   amount: expense.amount.toString(),
                   category: expense.category,
                   description: expense.description,
                   date: expense.date,
-                  status: expense.status
-                }
+                  status: expense.status,
+                },
               });
             }}
           >
             <Card.Content>
               <View style={styles.expenseHeader}>
                 <View style={styles.expenseInfo}>
-                  <Title style={styles.expenseAmount}>${expense.amount.toFixed(2)}</Title>
-                  <Paragraph style={styles.expenseDescription}>{expense.description}</Paragraph>
+                  <Title style={styles.expenseAmount}>
+                    ${expense.amount.toFixed(2)}
+                  </Title>
+                  <Paragraph style={styles.expenseDescription}>
+                    {expense.description}
+                  </Paragraph>
                 </View>
-                <Chip 
+                <Chip
                   icon={() => (
-                    <MaterialIcons 
-                      name={getStatusIcon(expense.status) as any} 
-                      size={16} 
-                      color="white" 
+                    <MaterialIcons
+                      name={getStatusIcon(expense.status) as any}
+                      size={16}
+                      color="white"
                     />
                   )}
-                  style={[styles.statusChip, { backgroundColor: getStatusColor(expense.status) }]}
-                  textStyle={{ color: 'white', fontSize: 12 }}
+                  style={[
+                    styles.statusChip,
+                    { backgroundColor: getStatusColor(expense.status) },
+                  ]}
+                  textStyle={{ color: "white", fontSize: 12 }}
                 >
                   {expense.status.toUpperCase()}
                 </Chip>
               </View>
-              
+
               <View style={styles.expenseDetails}>
-                <Text style={styles.categoryText}>Category: {expense.category}</Text>
+                <Text style={styles.categoryText}>
+                  Category: {expense.category}
+                </Text>
                 <Text style={styles.dateText}>Date: {expense.date}</Text>
               </View>
             </Card.Content>
@@ -208,71 +278,82 @@ export default function ExpensesScreen() {
       </ScrollView>
 
       {/* Add Expense Modal */}
-      <Portal>
-        <Modal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={styles.modalContainer}
-          style={styles.modal}
-        >
-          <Title style={styles.modalTitle}>New Report</Title>
-          
-          <TextInput
-            label="Report Name*"
-            value={newReport.name}
-            onChangeText={(text) => setNewReport({ ...newReport, name: text })}
-            mode="outlined"
-            style={styles.input}
-            left={<TextInput.Icon icon="file-document" />}
-          />
-          
+      <Modal
+        visible={modalVisible}
+        onDismiss={() => setModalVisible(false)}
+        contentContainerStyle={styles.modalContainer}
+        style={styles.modal}
+      >
+        <Text variant="titleLarge" style={styles.modalTitle}>
+          New Report
+        </Text>
+
+        <TextInput
+          label="Report Name*"
+          value={newReport.name}
+          onChangeText={(text) => setNewReport({ ...newReport, name: text })}
+          mode="outlined"
+          style={styles.input}
+          left={<TextInput.Icon icon="file-document" />}
+        />
+
+        <TouchableOpacity onPress={showDatePicker}>
           <TextInput
             label="Report Date"
             value={newReport.date}
-            onChangeText={(text) => setNewReport({ ...newReport, date: text })}
             mode="outlined"
             style={styles.input}
             left={<TextInput.Icon icon="calendar" />}
+            editable={false}
+            pointerEvents="none"
           />
-          
-          <TextInput
-            label="Business Purpose"
-            value={newReport.businessPurpose}
-            onChangeText={(text) => setNewReport({ ...newReport, businessPurpose: text })}
+        </TouchableOpacity>
+
+        <TextInput
+          label="Business Purpose"
+          value={newReport.businessPurpose}
+          onChangeText={(text) =>
+            setNewReport({ ...newReport, businessPurpose: text })
+          }
+          mode="outlined"
+          style={styles.input}
+          left={<TextInput.Icon icon="briefcase" />}
+        />
+
+        <TextInput
+          label="Comment"
+          value={newReport.comment}
+          onChangeText={(text) => setNewReport({ ...newReport, comment: text })}
+          mode="outlined"
+          multiline
+          numberOfLines={4}
+          style={styles.input}
+          left={<TextInput.Icon icon="comment-text" />}
+        />
+
+        {/* 在 iOS 上，DatePicker 会直接渲染在这里 */}
+        {Platform.OS === "ios" && renderDatePicker()}
+
+        <View style={styles.modalButtons}>
+          <Button
             mode="outlined"
-            style={styles.input}
-            left={<TextInput.Icon icon="briefcase" />}
-          />
-          
-          <TextInput
-            label="Comment"
-            value={newReport.comment}
-            onChangeText={(text) => setNewReport({ ...newReport, comment: text })}
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            style={styles.input}
-            left={<TextInput.Icon icon="comment-text" />}
-          />
-          
-          <View style={styles.modalButtons}>
-            <Button
-              mode="outlined"
-              onPress={() => setModalVisible(false)}
-              style={styles.modalButton}
-            >
-              Cancel
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleAddReport}
-              style={styles.modalButton}
-            >
-              Create
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
+            onPress={() => setModalVisible(false)}
+            style={styles.modalButton}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleAddReport}
+            style={styles.modalButton}
+          >
+            Create
+          </Button>
+        </View>
+      </Modal>
+
+      {/* 在 Android 上，DatePicker 是一个独立的 Dialog，可以这样渲染 */}
+      {Platform.OS === "android" && datePickerOpen && renderDatePicker()}
     </View>
   );
 }
@@ -280,7 +361,7 @@ export default function ExpensesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: "#F5F7FA",
   },
 
   scrollView: {
@@ -288,19 +369,19 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   summaryContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
   summaryCard: {
     flex: 0.48,
     elevation: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   summaryAmount: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1976D2', // 保持主题色强调
+    fontWeight: "bold",
+    color: "#1976D2", // 保持主题色强调
   },
   divider: {
     marginVertical: 16,
@@ -312,12 +393,12 @@ const styles = StyleSheet.create({
   expenseCard: {
     marginBottom: 12,
     elevation: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   expenseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 8,
   },
   expenseInfo: {
@@ -325,55 +406,63 @@ const styles = StyleSheet.create({
   },
   expenseAmount: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1976D2', // 保持主题色强调
+    fontWeight: "bold",
+    color: "#1976D2", // 保持主题色强调
   },
   expenseDescription: {
     fontSize: 14,
-    color: '#90A4AE',
+    color: "#90A4AE",
   },
   statusChip: {
     marginLeft: 8,
   },
   expenseDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   categoryText: {
     fontSize: 12,
-    color: '#90A4AE',
+    color: "#90A4AE",
   },
   dateText: {
     fontSize: 12,
-    color: '#90A4AE',
+    color: "#90A4AE",
   },
   modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
+    justifyContent: "center",
+    margin: 16,
   },
   modalContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    paddingTop: 30,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    minHeight: '85%',
-    maxHeight: '90%',
+    backgroundColor: "#FFFFFF",
+    padding: 24,
+    borderRadius: 16,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
   },
   modalTitle: {
-    textAlign: 'center',
-    marginBottom: 20,
+    textAlign: "center",
+    marginBottom: 24,
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1976D2",
   },
   input: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
-
   modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+    gap: 12,
   },
   modalButton: {
-    flex: 0.45,
+    flex: 1,
+    paddingVertical: 4,
   },
 });

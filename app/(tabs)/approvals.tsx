@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { 
-  Card, 
-  Title, 
-  Paragraph, 
-  Button, 
-  Chip,
-  Text,
-  Portal,
-  Modal,
-  TextInput,
-  IconButton,
-  Divider
-} from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Button,
+  Card,
+  Chip,
+  Divider,
+  IconButton,
+  Modal,
+  Paragraph,
+  Text,
+  TextInput,
+  Title
+} from 'react-native-paper';
 
 interface Report {
   id: string;
@@ -264,8 +263,7 @@ export default function ApprovalsScreen() {
       </ScrollView>
 
       {/* Report Detail Modal */}
-      <Portal>
-        <Modal
+      <Modal
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
           contentContainerStyle={styles.modalContainer}
@@ -384,7 +382,6 @@ export default function ApprovalsScreen() {
             </>
           )}
         </Modal>
-      </Portal>
     </View>
   );
 }
@@ -515,7 +512,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     margin: 20,
     borderRadius: 8,
-    maxHeight: '85%',
   },
   modalHeader: {
     flexDirection: 'row',

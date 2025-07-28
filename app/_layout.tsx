@@ -38,6 +38,51 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen 
+            name="report-detail" 
+            options={{ 
+              title: "Report Details",
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerTintColor: '#1976D2',
+              headerTitleStyle: {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              headerBackTitle: 'Back'
+            }} 
+          />
+          <Stack.Screen 
+            name="confirm-amount" 
+            options={{ 
+              title: "Confirm Amount",
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerTintColor: '#1976D2',
+              headerTitleStyle: {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              headerBackTitle: 'Back'
+            }} 
+          />
+          <Stack.Screen 
+            name="expense-edit" 
+            options={{ 
+              title: "Edit Expense",
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerTintColor: '#1976D2',
+              headerTitleStyle: {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              headerBackTitle: 'Back'
+            }} 
+          />
         </Stack>
       </PaperProvider>
     </SafeAreaProvider>

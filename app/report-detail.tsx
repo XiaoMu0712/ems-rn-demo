@@ -98,12 +98,39 @@ export default function ReportDetailScreen() {
     }))
   );
 
+  // Mock comments data
+  const mockComments = [
+    {
+      id: 1,
+      author: 'John Smith',
+      content: 'Please provide additional documentation for the hotel expenses.',
+      date: 'Mar 5, 2025',
+      time: '10:30 AM',
+      type: 'request'
+    },
+    {
+      id: 2,
+      author: 'Sarah Johnson',
+      content: 'All receipts have been uploaded and verified.',
+      date: 'Mar 5, 2025',
+      time: '2:15 PM',
+      type: 'update'
+    },
+    {
+      id: 3,
+      author: 'Mike Davis',
+      content: 'Approved for processing. Expected reimbursement within 5 business days.',
+      date: 'Mar 6, 2025',
+      time: '9:45 AM',
+      type: 'approval'
+    }
+  ];
+
   const [activeTab, setActiveTab] = useState('Details');
   const [showMenu, setShowMenu] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: 'Reports',
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <IconButton
@@ -180,7 +207,7 @@ export default function ReportDetailScreen() {
                 style={styles.menuItem} 
                 onPress={() => handleMenuItemPress('takePhoto')}
               >
-                <Text style={styles.menuIcon}>📷</Text>
+                <IconButton icon="camera" size={20} iconColor="#666" style={styles.menuIconButton} />
                 <Text style={styles.menuText}>Take Photo</Text>
               </TouchableOpacity>
               
@@ -188,7 +215,7 @@ export default function ReportDetailScreen() {
                 style={styles.menuItem} 
                 onPress={() => handleMenuItemPress('uploadPhoto')}
               >
-                <Text style={styles.menuIcon}>🖼️</Text>
+                <IconButton icon="image" size={20} iconColor="#666" style={styles.menuIconButton} />
                 <Text style={styles.menuText}>Upload Photo</Text>
               </TouchableOpacity>
               
@@ -196,24 +223,16 @@ export default function ReportDetailScreen() {
                 style={styles.menuItem} 
                 onPress={() => handleMenuItemPress('uploadFile')}
               >
-                <Text style={styles.menuIcon}>📁</Text>
+                <IconButton icon="file-upload" size={20} iconColor="#666" style={styles.menuIconButton} />
                 <Text style={styles.menuText}>Upload File</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.menuItem} 
+                style={[styles.menuItem, styles.lastMenuItem]} 
                 onPress={() => handleMenuItemPress('newExpense')}
               >
-                <Text style={styles.menuIcon}>✏️</Text>
+                <IconButton icon="plus" size={20} iconColor="#666" style={styles.menuIconButton} />
                 <Text style={styles.menuText}>New Expense</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.menuItem} 
-                onPress={() => handleMenuItemPress('expenseList')}
-              >
-                <Text style={styles.menuIcon}>📋</Text>
-                <Text style={styles.menuText}>Expense List</Text>
               </TouchableOpacity>
             </Surface>
           </View>
@@ -226,31 +245,58 @@ export default function ReportDetailScreen() {
     switch (activeTab) {
       case 'Details':
         return (
-          <View style={styles.tabContent}>
-            <List.Item
-              title="Report Name"
-              description={reportData.name}
-              left={props => <List.Icon {...props} icon="file-document" />}
-            />
-            <List.Item
-              title="Report Date"
-              description={reportData.date}
-              left={props => <List.Icon {...props} icon="calendar" />}
-            />
-            {reportData.businessPurpose && (
+          <View>
+            <View style={styles.tabContent}>
               <List.Item
-                title="Business Purpose"
-                description={reportData.businessPurpose}
-                left={props => <List.Icon {...props} icon="briefcase" />}
+                title="Report Name"
+                description={reportData.name}
+                left={props => <List.Icon {...props} icon="file-document" />}
               />
-            )}
-            {reportData.comment && (
               <List.Item
-                title="Comment"
-                description={reportData.comment}
-                left={props => <List.Icon {...props} icon="comment-text" />}
+                title="Report Date"
+                description={reportData.date}
+                left={props => <List.Icon {...props} icon="calendar" />}
               />
-            )}
+              {reportData.businessPurpose && (
+                <List.Item
+                  title="Business Purpose"
+                  description={reportData.businessPurpose}
+                  left={props => <List.Icon {...props} icon="briefcase" />}
+                />
+              )}
+              {reportData.comment && (
+                <List.Item
+                  title="Comment"
+                  description={reportData.comment}
+                  left={props => <List.Icon {...props} icon="comment-text" />}
+                />
+              )}
+            </View>
+            
+            {/* Comments Section */}
+            <View style={styles.tabContent}>
+              <View style={styles.commentsHeader}>
+                <Text style={styles.commentsTitle}>Comments</Text>
+                <Text style={styles.commentsCount}>({mockComments.length})</Text>
+              </View>
+              {mockComments.map((comment, index) => (
+                <View key={comment.id} style={styles.commentItem}>
+                  <View style={styles.commentHeader}>
+                    <View style={styles.commentAuthor}>
+                      <View style={[styles.commentTypeIndicator, 
+                        comment.type === 'approval' && styles.approvalIndicator,
+                        comment.type === 'request' && styles.requestIndicator,
+                        comment.type === 'update' && styles.updateIndicator
+                      ]} />
+                      <Text style={styles.commentAuthorName}>{comment.author}</Text>
+                    </View>
+                    <Text style={styles.commentDateTime}>{comment.date} • {comment.time}</Text>
+                  </View>
+                  <Text style={styles.commentContent}>{comment.content}</Text>
+                  {index < mockComments.length - 1 && <View style={styles.commentDivider} />}
+                </View>
+              ))}
+            </View>
           </View>
         );
       case 'Expenses':
@@ -578,9 +624,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  menuIcon: {
-    fontSize: 20,
-    marginRight: 12,
+  lastMenuItem: {
+    borderBottomWidth: 0,
+  },
+  menuIconButton: {
+    margin: 0,
+    marginRight: 8,
   },
   menuText: {
     fontSize: 16,
@@ -656,5 +705,71 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#E3F2FD',
     marginRight: 4,
+  },
+  commentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E3F2FD',
+  },
+  commentsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1565C0',
+  },
+  commentsCount: {
+    fontSize: 14,
+    color: '#90A4AE',
+    marginLeft: 8,
+  },
+  commentItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  commentAuthor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  commentTypeIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  approvalIndicator: {
+    backgroundColor: '#16a34a',
+  },
+  requestIndicator: {
+    backgroundColor: '#d97706',
+  },
+  updateIndicator: {
+    backgroundColor: '#3b82f6',
+  },
+  commentAuthorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1565C0',
+  },
+  commentDateTime: {
+    fontSize: 12,
+    color: '#90A4AE',
+  },
+  commentContent: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  commentDivider: {
+    height: 1,
+    backgroundColor: '#E3F2FD',
+    marginTop: 12,
   },
 });
