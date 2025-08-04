@@ -332,6 +332,7 @@ export default function ExpenseEditScreen() {
                     style={styles.addReceiptButton}
                   />
                 }
+                theme={{ colors: { elevation: { level2: '#ffffff' } } }}
               >
                 <Menu.Item
                   onPress={() => handleAddReceipt('photo', '')}
