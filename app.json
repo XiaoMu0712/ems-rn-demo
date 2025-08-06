@@ -36,7 +36,14 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "baseUrl": "/ems_app_demo"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bc80cb75-3e40-4d67-b24c-385c83215e20"
+      }
     }
   }
 }
