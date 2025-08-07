@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   Button,
@@ -52,6 +52,12 @@ const mockRecentExpenses: RecentExpense[] = [
 ];
 
 export default function HomeScreen() {
+  useLayoutEffect(() => {
+    // 这里根据项目导航库调整，示例为 react-navigation
+    // 由于 expo-router 可能不支持直接设置 headerRight，这里仅示意
+    // 具体实现可能需要在 _layout.tsx 或其他地方统一处理
+  }, []);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return '#4CAF50'; // Material Green
@@ -95,18 +101,13 @@ export default function HomeScreen() {
           
           <Card style={[styles.summaryCard, { backgroundColor: '#FFF3E0' }]}>
             <Card.Content>
-              <View style={styles.summaryContent}>
-                <MaterialIcons name="schedule" size={32} color="#F57C00" />
-                <View style={styles.summaryText}>
-                  <Title style={styles.summaryAmount}>${totalPending.toFixed(2)}</Title>
-                  <Paragraph style={styles.summaryLabel}>Pending</Paragraph>
-                </View>
-              </View>
+              <Title style={styles.summaryAmount}>${totalPending.toFixed(2)}</Title>
+              <Paragraph>Pending</Paragraph>
             </Card.Content>
           </Card>
         </View>
 
-        {/* Recent Expenses */}
+        {/* Recent Expenses List */}
         <Card style={styles.recentCard}>
           <Card.Content>
             <View style={styles.sectionHeader}>
@@ -225,37 +226,6 @@ const styles = StyleSheet.create({
     color: '#90A4AE', // Light gray
     fontWeight: '500',
   },
-  actionsCard: {
-    marginBottom: 24,
-    elevation: 4,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    marginBottom: 20,
-    color: '#1976D2',
-    fontWeight: '700',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    width: '48%',
-    marginBottom: 16,
-    borderRadius: 12,
-  },
-  actionButtonContent: {
-    paddingVertical: 12,
-    flexDirection: 'column',
-  },
-  actionButtonLabel: {
-    fontSize: 13,
-    marginTop: 6,
-    fontWeight: '600',
-  },
   recentCard: {
     marginBottom: 24,
     elevation: 4,
@@ -326,5 +296,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1565C0', // Dark Blue
     lineHeight: 22,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1976D2',
+    marginBottom: 20,
   },
 });

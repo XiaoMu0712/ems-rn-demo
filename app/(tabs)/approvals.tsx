@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import {
   Button,
@@ -78,6 +78,12 @@ export default function ApprovalsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [approvalComment, setApprovalComment] = useState('');
+
+  useLayoutEffect(() => {
+    // 这里根据项目导航库调整，示例为 react-navigation
+    // 由于 expo-router 可能不支持直接设置 headerRight，这里仅示意
+    // 具体实现可能需要在 _layout.tsx 或其他地方统一处理
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -423,7 +429,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1976D2', // 保持主题色强调
+    color: '#1976D2',
   },
   statLabel: {
     fontSize: 12,
@@ -481,7 +487,7 @@ const styles = StyleSheet.create({
   },
   reportAmount: {
     fontSize: 12,
-    color: '#1976D2', // 保持主题色强调
+    color: '#1976D2',
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'right',

@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ProfileMenu from '../components/ProfileMenu';
 
 export default function TabLayout() {
   return (
@@ -34,6 +35,7 @@ export default function TabLayout() {
             fontWeight: "700",
             fontSize: 18,
           },
+          headerRight: () => <ProfileMenu />,
         }}
       >
         <Tabs.Screen
@@ -64,11 +66,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="profile"
+          name="receipts"
           options={{
-            title: "Profile",
+            title: "Receipts",
             tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="person" size={size} color={color} />
+              <MaterialIcons name="receipt" size={size} color={color} />
             ),
           }}
         />

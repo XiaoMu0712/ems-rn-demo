@@ -3,14 +3,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useLayoutEffect, useState } from "react";
-import {
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Card,
@@ -23,7 +16,7 @@ import {
   TextInput,
   Title,
 } from "react-native-paper";
-
+import ProfileMenu from '../components/ProfileMenu';
 
 interface Expense {
   id: string;
@@ -81,11 +74,10 @@ export default function ExpensesScreen() {
 
   const onChange = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || selectedDate;
-    // 在 iOS 上，需要手动关闭
     if (Platform.OS === "ios") {
       setDatePickerOpen(false);
     } else {
-      setDatePickerOpen(false); // 在安卓上，选择或取消后也需要隐藏
+      setDatePickerOpen(false);
     }
     if (currentDate) {
       setSelectedDate(currentDate);
@@ -97,7 +89,6 @@ export default function ExpensesScreen() {
   };
 
   const renderDatePicker = () => {
-    // 只有当 datePickerOpen 为 true 时才渲染
     if (!datePickerOpen) return null;
 
     return (
@@ -106,7 +97,7 @@ export default function ExpensesScreen() {
         value={selectedDate}
         mode="date"
         is24Hour={true}
-        display={Platform.OS === "ios" ? "spinner" : "default"} // iOS上推荐用spinner或inline
+        display={Platform.OS === "ios" ? "spinner" : "default"}
         onChange={onChange}
       />
     );
@@ -115,13 +106,16 @@ export default function ExpensesScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <IconButton
-          icon="plus"
-          iconColor="#1976D2"
-          size={24}
-          onPress={() => setModalVisible(true)}
-          style={{ backgroundColor: "#E3F2FD", marginRight: 8 }}
-        />
+        <>
+          <ProfileMenu />
+          <IconButton
+            icon="plus"
+            iconColor="#1976D2"
+            size={24}
+            onPress={() => setModalVisible(true)}
+            style={{ backgroundColor: "#E3F2FD", marginRight: 8 }}
+          />
+        </>
       ),
     });
   }, [navigation]);
@@ -158,10 +152,8 @@ export default function ExpensesScreen() {
       return;
     }
 
-    // Close modal and navigate to report detail page
     setModalVisible(false);
 
-    // Navigate to report detail page with report data
     router.push({
       pathname: "/report-detail",
       params: {
@@ -172,7 +164,6 @@ export default function ExpensesScreen() {
       },
     });
 
-    // Reset form
     const today = new Date();
     setNewReport({
       name: "",
@@ -194,7 +185,6 @@ export default function ExpensesScreen() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {/* Summary Cards */}
         <View style={styles.summaryContainer}>
           <Card style={[styles.summaryCard, { backgroundColor: "#E3F2FD" }]}>
             <Card.Content>
@@ -217,7 +207,6 @@ export default function ExpensesScreen() {
 
         <Divider style={styles.divider} />
 
-        {/* Expenses List */}
         <Title style={styles.sectionTitle}>Recent Expenses</Title>
 
         {expenses.map((expense) => (
@@ -277,12 +266,10 @@ export default function ExpensesScreen() {
         ))}
       </ScrollView>
 
-      {/* Add Expense Modal */}
       <Modal
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}
         contentContainerStyle={styles.modalContainer}
-        style={styles.modal}
       >
         <Text variant="titleLarge" style={styles.modalTitle}>
           New Report
@@ -297,17 +284,15 @@ export default function ExpensesScreen() {
           left={<TextInput.Icon icon="file-document" />}
         />
 
-        <TouchableOpacity onPress={showDatePicker}>
-          <TextInput
-            label="Report Date"
-            value={newReport.date}
-            mode="outlined"
-            style={styles.input}
-            left={<TextInput.Icon icon="calendar" />}
-            editable={false}
-            pointerEvents="none"
-          />
-        </TouchableOpacity>
+        <TextInput
+          label="Report Date"
+          value={newReport.date}
+          mode="outlined"
+          style={styles.input}
+          left={<TextInput.Icon icon="calendar" />}
+          editable={false}
+          pointerEvents="none"
+        />
 
         <TextInput
           label="Business Purpose"
@@ -331,7 +316,6 @@ export default function ExpensesScreen() {
           left={<TextInput.Icon icon="comment-text" />}
         />
 
-        {/* 在 iOS 上，DatePicker 会直接渲染在这里 */}
         {Platform.OS === "ios" && renderDatePicker()}
 
         <View style={styles.modalButtons}>
@@ -352,7 +336,6 @@ export default function ExpensesScreen() {
         </View>
       </Modal>
 
-      {/* 在 Android 上，DatePicker 是一个独立的 Dialog，可以这样渲染 */}
       {Platform.OS === "android" && datePickerOpen && renderDatePicker()}
     </View>
   );
@@ -381,7 +364,7 @@ const styles = StyleSheet.create({
   summaryAmount: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1976D2", // 保持主题色强调
+    color: "#1976D2",
   },
   divider: {
     marginVertical: 16,
@@ -407,7 +390,7 @@ const styles = StyleSheet.create({
   expenseAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1976D2", // 保持主题色强调
+    color: "#1976D2",
   },
   expenseDescription: {
     fontSize: 14,
