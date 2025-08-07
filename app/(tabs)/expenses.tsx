@@ -16,7 +16,7 @@ import {
   TextInput,
   Title,
 } from "react-native-paper";
-import ProfileMenu from '../components/ProfileMenu';
+import ProfileHeader from '../components/ProfileHeader';
 
 interface Expense {
   id: string;
@@ -107,7 +107,7 @@ export default function ExpensesScreen() {
     navigation.setOptions({
       headerRight: () => (
         <>
-          <ProfileMenu />
+          <ProfileHeader />
           <IconButton
             icon="plus"
             iconColor="#1976D2"

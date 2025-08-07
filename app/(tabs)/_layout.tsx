@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ProfileMenu from '../components/ProfileMenu';
+import ProfileHeader from '../components/ProfileHeader';
 
 export default function TabLayout() {
   return (
@@ -35,7 +35,7 @@ export default function TabLayout() {
             fontWeight: "700",
             fontSize: 18,
           },
-          headerRight: () => <ProfileMenu />,
+          headerRight: () => <ProfileHeader />,
         }}
       >
         <Tabs.Screen
