@@ -1,167 +1,262 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Card, Chip, Divider, Text, Title } from 'react-native-paper';
+import { Button, Card, Text, TextInput, Title } from 'react-native-paper';
 
 interface Receipt {
   id: string;
-  description: string;
+  vendor: string;
   amount: number;
   date: string;
-  status: 'pending' | 'approved' | 'rejected';
-  merchant?: string;
-  category?: string;
-  notes?: string;
 }
 
 const mockReceipts: Receipt[] = [
-  { 
-    id: '1', 
-    description: 'Lunch with client', 
-    amount: 45.0, 
-    date: '2024-01-15', 
-    status: 'pending',
-    merchant: 'Restaurant ABC',
-    category: 'Meals',
-    notes: 'Business lunch with potential client'
+  {
+    id: '1',
+    vendor: 'Restaurant ABC',
+    amount: 45.0,
+    date: '2024-01-15'
   },
-  { 
-    id: '2', 
-    description: 'Office supplies', 
-    amount: 89.99, 
-    date: '2024-01-14', 
-    status: 'approved',
-    merchant: 'Office Depot',
-    category: 'Office Supplies',
-    notes: 'Printer ink and paper'
+  {
+    id: '2',
+    vendor: 'Office Depot',
+    amount: 89.99,
+    date: '2024-01-14'
   },
-  { 
-    id: '3', 
-    description: 'Taxi fare', 
-    amount: 25.5, 
-    date: '2024-01-12', 
-    status: 'rejected',
-    merchant: 'City Cab',
-    category: 'Transportation',
-    notes: 'From office to client site'
+  {
+    id: '3',
+    vendor: 'City Cab',
+    amount: 25.5,
+    date: '2024-01-12'
   },
 ];
 
 export default function ReceiptDetailScreen() {
   const router = useRouter();
-  const { receiptId } = useLocalSearchParams<{ receiptId: string }>();
-  
+  const { receiptId, mode } = useLocalSearchParams<{ receiptId: string; mode: string }>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    vendor: '',
+    amount: '',
+    date: '',
+  });
+
   const receipt = mockReceipts.find(r => r.id === receiptId) || mockReceipts[0];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return '#4CAF50';
-      case 'pending': return '#FF9800';
-      case 'rejected': return '#F44336';
-      default: return '#90A4AE';
+  useEffect(() => {
+    if (mode === 'new') {
+      setIsEditMode(true);
+      setFormData({
+        vendor: '',
+        amount: '',
+        date: new Date().toISOString().split('T')[0], // 默认今天
+      });
+    } else {
+      setFormData({
+        vendor: receipt.vendor,
+        amount: receipt.amount.toString(),
+        date: receipt.date,
+      });
+    }
+  }, [receiptId, mode, receipt]);
+
+  const handleSave = () => {
+    if (!formData.vendor || !formData.amount || !formData.date) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    const amountNum = parseFloat(formData.amount);
+    if (isNaN(amountNum)) {
+      Alert.alert('Error', 'Amount must be a number');
+      return;
+    }
+
+    if (mode === 'new') {
+      // 新增模式
+      const newId = (mockReceipts.length + 1).toString();
+      const newReceipt: Receipt = {
+        id: newId,
+        vendor: formData.vendor,
+        amount: amountNum,
+        date: formData.date,
+      };
+      mockReceipts.push(newReceipt);
+      Alert.alert('Success', 'Receipt added successfully');
+    } else {
+      // 编辑模式
+      const receiptIndex = mockReceipts.findIndex(r => r.id === receiptId);
+      if (receiptIndex !== -1) {
+        mockReceipts[receiptIndex] = {
+          ...mockReceipts[receiptIndex],
+          vendor: formData.vendor,
+          amount: amountNum,
+          date: formData.date,
+        };
+        Alert.alert('Success', 'Receipt updated successfully');
+      }
+    }
+
+    router.back();
+  };
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+  };
+
+  const handleCancel = () => {
+    if (mode === 'new') {
+      router.back();
+    } else {
+      setIsEditMode(false);
+      // 重置表单数据为原始值
+      setFormData({
+        vendor: receipt.vendor,
+        amount: receipt.amount.toString(),
+        date: receipt.date,
+      });
     }
   };
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {/* Receipt Header */}
-        <Card style={styles.headerCard}>
-          <Card.Content>
-            <View style={styles.headerRow}>
-              <View style={styles.headerInfo}>
-                <Title style={styles.title}>{receipt.description}</Title>
-                <Text style={styles.date}>{receipt.date}</Text>
-                {receipt.merchant && (
-                  <Text style={styles.merchant}>Merchant: {receipt.merchant}</Text>
-                )}
-              </View>
-              <Chip 
-                style={[styles.statusChip, { backgroundColor: getStatusColor(receipt.status) }]} 
-                textStyle={{ color: 'white' }}
-              >
-                {receipt.status.toUpperCase()}
-              </Chip>
-            </View>
-          </Card.Content>
-        </Card>
+        {isEditMode ? (
+          /* Edit Mode */
+          <>
+            <Card style={styles.formCard}>
+              <Card.Content>
+                <Title style={styles.sectionTitle}>Receipt Information</Title>
+                
+                <TextInput
+                  label="Vendor"
+                  value={formData.vendor}
+                  onChangeText={(text) => setFormData({ ...formData, vendor: text })}
+                  mode="outlined"
+                  style={styles.input}
+                />
+                
+                <TextInput
+                  label="Amount"
+                  value={formData.amount}
+                  onChangeText={(text) => setFormData({ ...formData, amount: text })}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  style={styles.input}
+                />
+                
+                <TextInput
+                  label="Date"
+                  value={formData.date}
+                  onChangeText={(text) => setFormData({ ...formData, date: text })}
+                  mode="outlined"
+                  style={styles.input}
+                />
+                
+                <View style={styles.buttonContainer}>
+                  <Button
+                    mode="outlined"
+                    icon="camera"
+                    onPress={() => Alert.alert('Camera', 'Camera functionality would go here')}
+                    style={styles.actionButton}
+                  >
+                    Take Photo
+                  </Button>
+                  
+                  <Button
+                    mode="outlined"
+                    icon="upload"
+                    onPress={() => Alert.alert('Upload', 'Upload functionality would go here')}
+                    style={styles.actionButton}
+                  >
+                    Upload File
+                  </Button>
+                </View>
+                
+                <View style={styles.buttonContainer}>
+                  <Button
+                    mode="outlined"
+                    onPress={handleCancel}
+                    style={styles.actionButton}
+                  >
+                    Cancel
+                  </Button>
+                  
+                  <Button
+                    mode="contained"
+                    onPress={handleSave}
+                    style={styles.actionButton}
+                  >
+                    Save
+                  </Button>
+                </View>
+              </Card.Content>
+            </Card>
+          </>
+        ) : (
+          /* View Mode */
+          <>
+            {/* Receipt Header */}
+            <Card style={styles.headerCard}>
+              <Card.Content>
+                <View style={styles.headerRow}>
+                  <View style={styles.headerInfo}>
+                    <Title style={styles.title}>{receipt.vendor}</Title>
+                    <Text style={styles.date}>{receipt.date}</Text>
+                  </View>
+                </View>
+              </Card.Content>
+            </Card>
 
-        {/* Amount */}
-        <Card style={styles.amountCard}>
-          <Card.Content style={styles.amountContent}>
-            <Text style={styles.amountLabel}>Amount</Text>
-            <Text style={styles.amount}>${receipt.amount.toFixed(2)}</Text>
-          </Card.Content>
-        </Card>
+            {/* Amount */}
+            <Card style={styles.amountCard}>
+              <Card.Content style={styles.amountContent}>
+                <Text style={styles.amountLabel}>Amount</Text>
+                <Text style={styles.amount}>${receipt.amount.toFixed(2)}</Text>
+              </Card.Content>
+            </Card>
 
-        {/* Details */}
-        <Card style={styles.detailsCard}>
-          <Card.Content>
-            <Title style={styles.sectionTitle}>Details</Title>
-            
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Category:</Text>
-              <Text style={styles.detailValue}>{receipt.category || 'Uncategorized'}</Text>
-            </View>
-            
-            <Divider style={styles.divider} />
-            
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Date:</Text>
-              <Text style={styles.detailValue}>{receipt.date}</Text>
-            </View>
-            
-            <Divider style={styles.divider} />
-            
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Status:</Text>
-              <Chip 
-                style={[styles.detailStatusChip, { backgroundColor: getStatusColor(receipt.status) }]} 
-                textStyle={{ color: 'white' }}
-              >
-                {receipt.status.toUpperCase()}
-              </Chip>
-            </View>
-          </Card.Content>
-        </Card>
+            {/* Details */}
+            <Card style={styles.detailsCard}>
+              <Card.Content>
+                <Title style={styles.sectionTitle}>Details</Title>
+                
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Date:</Text>
+                  <Text style={styles.detailValue}>{receipt.date}</Text>
+                </View>
+              </Card.Content>
+            </Card>
 
-        {/* Notes */}
-        {receipt.notes && (
-          <Card style={styles.notesCard}>
-            <Card.Content>
-              <Title style={styles.sectionTitle}>Notes</Title>
-              <Text style={styles.notesText}>{receipt.notes}</Text>
-            </Card.Content>
-          </Card>
+            {/* Actions */}
+            <Card style={styles.actionsCard}>
+              <Card.Content>
+                <Title style={styles.sectionTitle}>Actions</Title>
+                
+                <View style={styles.actionsContainer}>
+                  <Button
+                    mode="outlined"
+                    icon="pencil"
+                    onPress={handleEdit}
+                    style={styles.actionButton}
+                  >
+                    Edit
+                  </Button>
+                  
+                  <Button
+                    mode="outlined"
+                    icon="delete"
+                    onPress={() => Alert.alert('Delete', 'Delete receipt functionality would go here')}
+                    style={[styles.actionButton, styles.deleteButton]}
+                    textColor="#F44336"
+                  >
+                    Delete
+                  </Button>
+                </View>
+              </Card.Content>
+            </Card>
+          </>
         )}
-
-        {/* Actions */}
-        <Card style={styles.actionsCard}>
-          <Card.Content>
-            <Title style={styles.sectionTitle}>Actions</Title>
-            
-            <View style={styles.actionsContainer}>
-              <Button
-                mode="outlined"
-                icon="pencil"
-                onPress={() => Alert.alert('Edit', 'Edit receipt functionality would go here')}
-                style={styles.actionButton}
-              >
-                Edit
-              </Button>
-              
-              <Button
-                mode="outlined"
-                icon="delete"
-                onPress={() => Alert.alert('Delete', 'Delete receipt functionality would go here')}
-                style={[styles.actionButton, styles.deleteButton]}
-                textColor="#F44336"
-              >
-                Delete
-              </Button>
-            </View>
-          </Card.Content>
-        </Card>
       </ScrollView>
     </View>
   );
@@ -200,13 +295,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#90A4AE',
     marginBottom: 4,
-  },
-  merchant: {
-    fontSize: 14,
-    color: '#90A4AE',
-  },
-  statusChip: {
-    alignSelf: 'flex-start',
   },
   amountCard: {
     marginBottom: 16,
@@ -255,22 +343,6 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
-  detailStatusChip: {
-    alignSelf: 'flex-start',
-  },
-  divider: {
-    marginVertical: 12,
-  },
-  notesCard: {
-    marginBottom: 16,
-    elevation: 2,
-    backgroundColor: '#FFFFFF',
-  },
-  notesText: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#333',
-  },
   actionsCard: {
     marginBottom: 16,
     elevation: 2,
@@ -285,5 +357,18 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     borderColor: '#F44336',
+  },
+  formCard: {
+    marginBottom: 16,
+    elevation: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  input: {
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
 });
