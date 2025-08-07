@@ -7,6 +7,7 @@ import {
   Card,
   Chip,
   Divider,
+  FAB,
   Modal,
   Paragraph,
   Text,
@@ -227,17 +228,14 @@ export default function CreditCardsScreen() {
         ))}
       </ScrollView>
 
-      {selectedCards.length > 0 && (
-        <View style={styles.floatingButtonContainer}>
-          <Button
-            mode="contained"
-            onPress={handleNewReport}
-            style={styles.floatingNewReportButton}
-            labelStyle={styles.floatingButtonLabel}
-          >
-            New Report
-          </Button>
-        </View>
+      {selectedCards.length > 0 && !modalVisible && (
+        <FAB
+          icon="file-document"
+          color="#FFFFFF"
+          style={styles.fab}
+          onPress={handleNewReport}
+          label="New Report"
+        />
       )}
 
       <Modal
@@ -456,32 +454,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 80, // 为浮动按钮留出空间
   },
-  floatingButtonContainer: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
+  fab: {
+    position: 'absolute',
+    margin: 16,
     right: 0,
-    flexDirection: "row",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  floatingNewReportButton: {
-    backgroundColor: "#4CAF50",
-    borderRadius: 30,
-    elevation: 6,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    minWidth: 200,
-  },
-  floatingButtonLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    paddingVertical: 4,
+    bottom: 0,
+    backgroundColor: '#4CAF50',
   },
   filterContainer: {
     marginBottom: 16,

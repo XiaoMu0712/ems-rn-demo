@@ -9,12 +9,12 @@ import {
   Card,
   Chip,
   Divider,
-  IconButton,
+  FAB,
   Modal,
   Paragraph,
   Text,
   TextInput,
-  Title,
+  Title
 } from "react-native-paper";
 import ProfileHeader from '../components/ProfileHeader';
 
@@ -105,18 +105,7 @@ export default function ExpensesScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <>
-          <ProfileHeader />
-          <IconButton
-            icon="plus"
-            iconColor="#1976D2"
-            size={24}
-            onPress={() => setModalVisible(true)}
-            style={{ backgroundColor: "#E3F2FD", marginRight: 8 }}
-          />
-        </>
-      ),
+      headerRight: () => <ProfileHeader />,
     });
   }, [navigation]);
 
@@ -338,6 +327,15 @@ export default function ExpensesScreen() {
       </Modal>
 
       {Platform.OS === "android" && datePickerOpen && renderDatePicker()}
+
+      {!modalVisible && (
+        <FAB
+          icon="plus"
+          color="#FFFFFF"
+          style={styles.fab}
+          onPress={() => setModalVisible(true)}
+        />
+      )}
     </View>
   );
 }
@@ -448,5 +446,12 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 4,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#1976D2',
   },
 });
