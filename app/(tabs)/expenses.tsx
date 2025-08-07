@@ -161,6 +161,7 @@ export default function ExpensesScreen() {
         date: newReport.date,
         businessPurpose: newReport.businessPurpose,
         comment: newReport.comment,
+        sourcePage: "/(tabs)/expenses", // 添加来源页面参数
       },
     });
 

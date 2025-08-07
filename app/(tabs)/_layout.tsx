@@ -74,6 +74,15 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="credit-cards"
+          options={{
+            title: "Cards",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="credit-card" size={size} color={color} />
+            ),
+          }}
+        />
       </Tabs>
     </SafeAreaView>
   );

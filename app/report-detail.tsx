@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   Button,
   Card,
@@ -16,6 +16,9 @@ export default function ReportDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const params = useLocalSearchParams();
+  
+  // 获取来源页面参数
+  const sourcePage = params.sourcePage as string || '/(tabs)/expenses';
   
   // Mock report data - in real app this would come from params or API
   const reportData = {
@@ -153,6 +156,24 @@ export default function ReportDetailScreen() {
   const handleSubmit = () => {
     // Handle submit logic here
     console.log('Report submitted');
+    
+    // 根据来源页面返回相应的页面
+    Alert.alert(
+      "Success",
+      "Report submitted successfully!",
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            if (sourcePage === '/(tabs)/credit-cards') {
+              router.push('/(tabs)/credit-cards');
+            } else {
+              router.push('/(tabs)/expenses');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleMenuItemPress = (action: string) => {
