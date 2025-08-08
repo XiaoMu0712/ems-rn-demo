@@ -10,13 +10,15 @@ import {
   Chip,
   Divider,
   FAB,
+  IconButton,
   Modal,
   Paragraph,
+  SegmentedButtons,
   Text,
   TextInput,
-  Title
+  Title,
 } from "react-native-paper";
-import ProfileHeader from '../components/ProfileHeader';
+import ProfileHeader from "../components/ProfileHeader";
 
 interface Expense {
   id: string;
@@ -99,7 +101,8 @@ export default function ExpensesScreen() {
   });
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedStatusCategory, setSelectedStatusCategory] = useState<ReportStatusCategory>("draft");
+  const [selectedStatusCategory, setSelectedStatusCategory] =
+    useState<ReportStatusCategory>("draft");
   const [selectedFilters, setSelectedFilters] = useState<{
     categories: string[];
     dateRange: { start: string | null; end: string | null };
@@ -210,18 +213,30 @@ export default function ExpensesScreen() {
   // 根据选中的状态分类和筛选条件筛选报告
   const filteredExpenses = expenses.filter((expense) => {
     const statusCategory = mapStatusToCategory(expense.status);
-    const categoryMatch = selectedFilters.categories.length === 0 ||
-                          selectedFilters.categories.includes(expense.category);
-    
+    const categoryMatch =
+      selectedFilters.categories.length === 0 ||
+      selectedFilters.categories.includes(expense.category);
+
     // 日期范围筛选
-    const dateMatch = (!selectedFilters.dateRange.start || expense.date >= selectedFilters.dateRange.start) &&
-                     (!selectedFilters.dateRange.end || expense.date <= selectedFilters.dateRange.end);
-    
+    const dateMatch =
+      (!selectedFilters.dateRange.start ||
+        expense.date >= selectedFilters.dateRange.start) &&
+      (!selectedFilters.dateRange.end ||
+        expense.date <= selectedFilters.dateRange.end);
+
     // 金额范围筛选
-    const amountMatch = (selectedFilters.amountRange.min === null || expense.amount >= selectedFilters.amountRange.min) &&
-                       (selectedFilters.amountRange.max === null || expense.amount <= selectedFilters.amountRange.max);
-    
-    return statusCategory === selectedStatusCategory && categoryMatch && dateMatch && amountMatch;
+    const amountMatch =
+      (selectedFilters.amountRange.min === null ||
+        expense.amount >= selectedFilters.amountRange.min) &&
+      (selectedFilters.amountRange.max === null ||
+        expense.amount <= selectedFilters.amountRange.max);
+
+    return (
+      statusCategory === selectedStatusCategory &&
+      categoryMatch &&
+      dateMatch &&
+      amountMatch
+    );
   });
 
   // 计算统计信息
@@ -234,77 +249,68 @@ export default function ExpensesScreen() {
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   // 获取所有类别
-  const allCategories = ["all", ...Array.from(new Set(expenses.map(expense => expense.category)))];
-  
+  const allCategories = [
+    "all",
+    ...Array.from(new Set(expenses.map((expense) => expense.category))),
+  ];
+
   // 计算各状态分类的报告数量
-  const draftCount = expenses.filter(expense => mapStatusToCategory(expense.status) === "draft").length;
-  const completeCount = expenses.filter(expense => mapStatusToCategory(expense.status) === "complete").length;
-  const cancelledCount = expenses.filter(expense => mapStatusToCategory(expense.status) === "cancelled").length;
+  const draftCount = expenses.filter(
+    (expense) => mapStatusToCategory(expense.status) === "draft"
+  ).length;
+  const completeCount = expenses.filter(
+    (expense) => mapStatusToCategory(expense.status) === "complete"
+  ).length;
+  const cancelledCount = expenses.filter(
+    (expense) => mapStatusToCategory(expense.status) === "cancelled"
+  ).length;
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
+        {/* 分段控制器和筛选按钮 */}
+        <View style={styles.headerRow}>
+          <View style={{ flex: 1 }}>
+            <SegmentedButtons
+              value={selectedStatusCategory}
+              onValueChange={setSelectedStatusCategory}
+              theme={{
+                colors: {
+                  onSecondaryContainer: "#FFFFFF",
+                }
+              }}
+              buttons={[
+                {
+                  value: "draft",
+                  label: "Draft",
+                },
+                {
+                  value: "complete",
+                  label: "Complete",
+                },
+                {
+                  value: "cancelled",
+                  label: "Cancelled",
+                },
+              ]}
+            />
+          </View>
 
-        {/* 分段控制器 */}
-        <View style={styles.segmentedControlContainer}>
-          <Button
-            mode={selectedStatusCategory === "draft" ? "contained" : "outlined"}
-            onPress={() => setSelectedStatusCategory("draft")}
-            style={[
-              styles.segmentedButton,
-              selectedStatusCategory === "draft" && styles.activeSegmentedButton
-            ]}
-            labelStyle={[
-              styles.segmentedButtonText,
-              selectedStatusCategory === "draft" && styles.activeSegmentedButtonText
-            ]}
-          >
-            Draft ({draftCount})
-          </Button>
-          <Button
-            mode={selectedStatusCategory === "complete" ? "contained" : "outlined"}
-            onPress={() => setSelectedStatusCategory("complete")}
-            style={[
-              styles.segmentedButton,
-              selectedStatusCategory === "complete" && styles.activeSegmentedButton
-            ]}
-            labelStyle={[
-              styles.segmentedButtonText,
-              selectedStatusCategory === "complete" && styles.activeSegmentedButtonText
-            ]}
-          >
-            Complete ({completeCount})
-          </Button>
-          <Button
-            mode={selectedStatusCategory === "cancelled" ? "contained" : "outlined"}
-            onPress={() => setSelectedStatusCategory("cancelled")}
-            style={[
-              styles.segmentedButton,
-              selectedStatusCategory === "cancelled" && styles.activeSegmentedButton
-            ]}
-            labelStyle={[
-              styles.segmentedButtonText,
-              selectedStatusCategory === "cancelled" && styles.activeSegmentedButtonText
-            ]}
-          >
-            Cancelled ({cancelledCount})
-          </Button>
+          {/* 筛选按钮 - 只显示图标 */}
+          <IconButton
+            icon={showFilters ? "filter" : "filter-variant"}
+            iconColor="#1976D2"
+            size={20}
+            onPress={() => setShowFilters(!showFilters)}
+          />
         </View>
 
         {/* 筛选功能 */}
         <View style={styles.filterContainer}>
-          <Button
-            mode="outlined"
-            onPress={() => setShowFilters(!showFilters)}
-            style={styles.filterButton}
-            icon="filter-variant"
-            labelStyle={styles.filterButtonText}
-          >
-            Filters {showFilters ? "▲" : "▼"}
-          </Button>
-          
           {/* 选中的筛选条件 Chip */}
-          {(selectedFilters.categories.length > 0 || selectedFilters.dateRange.start || selectedFilters.dateRange.end) && (
+          {(selectedFilters.categories.length > 0 ||
+            selectedFilters.dateRange.start ||
+            selectedFilters.dateRange.end) && (
             <View style={styles.selectedFiltersContainer}>
               <Text style={styles.selectedFiltersLabel}>Selected Filters:</Text>
               <View style={styles.selectedFiltersChips}>
@@ -315,7 +321,9 @@ export default function ExpensesScreen() {
                     onClose={() => {
                       setSelectedFilters({
                         ...selectedFilters,
-                        categories: selectedFilters.categories.filter(c => c !== category)
+                        categories: selectedFilters.categories.filter(
+                          (c) => c !== category
+                        ),
                       });
                     }}
                     style={styles.selectedFilterChip}
@@ -324,7 +332,7 @@ export default function ExpensesScreen() {
                     {category}
                   </Chip>
                 ))}
-                
+
                 {selectedFilters.dateRange.start && (
                   <Chip
                     key="startDate"
@@ -332,7 +340,10 @@ export default function ExpensesScreen() {
                     onClose={() => {
                       setSelectedFilters({
                         ...selectedFilters,
-                        dateRange: { ...selectedFilters.dateRange, start: null }
+                        dateRange: {
+                          ...selectedFilters.dateRange,
+                          start: null,
+                        },
                       });
                     }}
                     style={styles.selectedFilterChip}
@@ -341,7 +352,7 @@ export default function ExpensesScreen() {
                     From: {selectedFilters.dateRange.start}
                   </Chip>
                 )}
-                
+
                 {selectedFilters.dateRange.end && (
                   <Chip
                     key="endDate"
@@ -349,7 +360,7 @@ export default function ExpensesScreen() {
                     onClose={() => {
                       setSelectedFilters({
                         ...selectedFilters,
-                        dateRange: { ...selectedFilters.dateRange, end: null }
+                        dateRange: { ...selectedFilters.dateRange, end: null },
                       });
                     }}
                     style={styles.selectedFilterChip}
@@ -361,54 +372,72 @@ export default function ExpensesScreen() {
               </View>
             </View>
           )}
-          
+
           {showFilters && (
             <View style={styles.filterOptions}>
               <Text style={styles.filterLabel}>Categories:</Text>
               <View style={styles.categoryButtons}>
-                {allCategories.filter(cat => cat !== "all").map((category) => (
-                  <Button
-                    key={category}
-                    mode={selectedFilters.categories.includes(category) ? "contained" : "outlined"}
-                    onPress={() => {
-                      if (selectedFilters.categories.includes(category)) {
-                        setSelectedFilters({
-                          ...selectedFilters,
-                          categories: selectedFilters.categories.filter(c => c !== category)
-                        });
-                      } else {
-                        setSelectedFilters({
-                          ...selectedFilters,
-                          categories: [...selectedFilters.categories, category]
-                        });
+                {allCategories
+                  .filter((cat) => cat !== "all")
+                  .map((category) => (
+                    <Button
+                      key={category}
+                      mode={
+                        selectedFilters.categories.includes(category)
+                          ? "contained"
+                          : "outlined"
                       }
-                    }}
-                    style={[
-                      styles.categoryButton,
-                      selectedFilters.categories.includes(category) && styles.selectedCategoryButton
-                    ]}
-                    labelStyle={[
-                      styles.categoryButtonText,
-                      selectedFilters.categories.includes(category) && styles.selectedCategoryButtonText
-                    ]}
-                  >
-                    {category}
-                  </Button>
-                ))}
+                      onPress={() => {
+                        if (selectedFilters.categories.includes(category)) {
+                          setSelectedFilters({
+                            ...selectedFilters,
+                            categories: selectedFilters.categories.filter(
+                              (c) => c !== category
+                            ),
+                          });
+                        } else {
+                          setSelectedFilters({
+                            ...selectedFilters,
+                            categories: [
+                              ...selectedFilters.categories,
+                              category,
+                            ],
+                          });
+                        }
+                      }}
+                      style={[
+                        styles.categoryButton,
+                        selectedFilters.categories.includes(category) &&
+                          styles.selectedCategoryButton,
+                      ]}
+                      labelStyle={[
+                        styles.categoryButtonText,
+                        selectedFilters.categories.includes(category) &&
+                          styles.selectedCategoryButtonText,
+                      ]}
+                    >
+                      {category}
+                    </Button>
+                  ))}
               </View>
-              
+
               <Divider style={styles.filterDivider} />
-              
+
               <Text style={styles.filterLabel}>Date Range:</Text>
               <View style={styles.dateRangeContainer}>
                 <View style={styles.dateInputContainer}>
                   <TextInput
                     label="Start Date"
                     value={selectedFilters.dateRange.start || ""}
-                    onChangeText={(text) => setSelectedFilters({
-                      ...selectedFilters,
-                      dateRange: { ...selectedFilters.dateRange, start: text }
-                    })}
+                    onChangeText={(text) =>
+                      setSelectedFilters({
+                        ...selectedFilters,
+                        dateRange: {
+                          ...selectedFilters.dateRange,
+                          start: text,
+                        },
+                      })
+                    }
                     mode="outlined"
                     style={styles.dateInput}
                     placeholder="YYYY-MM-DD"
@@ -419,10 +448,12 @@ export default function ExpensesScreen() {
                   <TextInput
                     label="End Date"
                     value={selectedFilters.dateRange.end || ""}
-                    onChangeText={(text) => setSelectedFilters({
-                      ...selectedFilters,
-                      dateRange: { ...selectedFilters.dateRange, end: text }
-                    })}
+                    onChangeText={(text) =>
+                      setSelectedFilters({
+                        ...selectedFilters,
+                        dateRange: { ...selectedFilters.dateRange, end: text },
+                      })
+                    }
                     mode="outlined"
                     style={styles.dateInput}
                     placeholder="YYYY-MM-DD"
@@ -433,7 +464,6 @@ export default function ExpensesScreen() {
             </View>
           )}
         </View>
-
 
         {filteredExpenses.map((expense) => (
           <Card
@@ -684,36 +714,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#1976D2',
+    backgroundColor: "#1976D2",
   },
-  segmentedControlContainer: {
+  headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    padding: 4,
-  },
-  segmentedButton: {
-    flex: 1,
-    marginHorizontal: 2,
-    borderRadius: 8,
-    paddingVertical: 2,
-  },
-  activeSegmentedButton: {
-    backgroundColor: "#1976D2",
-    elevation: 2,
-  },
-  segmentedButtonText: {
-    fontSize: 12,
-    color: "#90A4AE",
-  },
-  activeSegmentedButtonText: {
-    color: "white",
   },
   filterContainer: {
     marginBottom: 16,

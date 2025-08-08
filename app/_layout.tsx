@@ -83,6 +83,36 @@ export default function RootLayout() {
               headerBackTitle: 'Back'
             }} 
           />
+          <Stack.Screen 
+            name="profile" 
+            options={{ 
+              title: "Profile",
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerTintColor: '#1976D2',
+              headerTitleStyle: {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              headerBackTitle: 'Back'
+            }} 
+          />
+          <Stack.Screen 
+            name="receipt-detail" 
+            options={{ 
+              title: "Receipt Details",
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerTintColor: '#1976D2',
+              headerTitleStyle: {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              headerBackTitle: 'Back'
+            }} 
+          />
         </Stack>
       </PaperProvider>
     </SafeAreaProvider>

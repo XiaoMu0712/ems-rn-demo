@@ -129,7 +129,7 @@ export default function ReportDetailScreen() {
     }
   ];
 
-  const [activeTab, setActiveTab] = useState('Details');
+  const [activeTab, setActiveTab] = useState('Expenses');
   const [showMenu, setShowMenu] = useState(false);
 
   useLayoutEffect(() => {

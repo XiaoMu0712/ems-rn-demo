@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   Chip,
-  Divider,
   FAB,
   Modal,
   Paragraph,
@@ -150,9 +149,7 @@ export default function CreditCardsScreen() {
             </Card.Content>
           </Card>
         )}
-
-        <Divider style={styles.divider} />
-
+        
         <Title style={styles.sectionTitle}>Credit Cards</Title>
 
         {/* 筛选功能UI */}
